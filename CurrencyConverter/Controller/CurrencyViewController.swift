@@ -16,15 +16,16 @@ class CurrencyViewController: UIViewController {
     private let Spinner = UIActivityIndicatorView(style: .large)
 
 //MARK:- Objects
-    private let BackButton = CustomButton(title: nil, image: UIImage(systemName: "chevron.backward"))
-    private let Title = CustomLabel(labelText: "", bgColor: false)
+    private let BackButton = UIButton(image: UIImage(systemName: "chevron.backward"), title: nil, tintColor: Colors.button_bg_color!, backgroundColor: .clear)
+    private let Title = UILabel(text: "Currency Converter", backgroundColor: .clear, textColor: Colors.button_bg_color!, font: UIFont(name: "Arial", size: 15)!)
     
-    private var FirstCurrencyTextField = CustomTextField(placeholderText: "---", line: false)
-    private var FirstCurrencyAmountTextField = CustomTextField(placeholderText: "Write amount", line: true)
+    private var FirstCurrencyTextField = UITextField(placeholder: "---", backgroundColor: Colors.button_bg_color!, textColor: Colors.button_tint_color!, font: UIFont(name: "Arial", size: 15)!)
+    private var FirstCurrencyAmountTextField =  UITextField(placeholder: "Write amount", backgroundColor: .clear, textColor: Colors.button_bg_color!, font: UIFont(name: "Arial", size: 15)!)
     
-    private var SecondCurrencyTextField = CustomTextField(placeholderText: "---", line: false)
-    private var SecondCurrencyAmountTextField = CustomTextField(placeholderText: "Write amount", line: true)
-    
+    private var SecondCurrencyTextField = UITextField(placeholder: "---", backgroundColor: Colors.button_bg_color!, textColor: Colors.button_tint_color!, font: UIFont(name: "Arial", size: 15)!)
+
+    private var SecondCurrencyAmountTextField = UITextField(placeholder: "Write amount", backgroundColor: .clear, textColor: Colors.button_bg_color!, font: UIFont(name: "Arial", size: 15)!)
+
     private var FirstCurrencyPickerView = UIPickerView()
     private var SecondCurrencyPickerView = UIPickerView()
 
@@ -55,7 +56,7 @@ class CurrencyViewController: UIViewController {
         BackButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 5).isActive = true
         BackButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         BackButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        BackButton.action = backButtonTapped
+        BackButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         
         view.addSubview(Title)
         Title.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
@@ -68,34 +69,32 @@ class CurrencyViewController: UIViewController {
         FirstCurrencyTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
         FirstCurrencyTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
         FirstCurrencyTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        FirstCurrencyTextField.TextField.textAlignment = .center
-        FirstCurrencyTextField.TextField.tintColor = .clear
-        FirstCurrencyTextField.TextField.inputView = FirstCurrencyPickerView
-        
+        FirstCurrencyTextField.inputView = FirstCurrencyPickerView
+        FirstCurrencyTextField.layer.cornerRadius = 5
+
         view.addSubview(FirstCurrencyAmountTextField)
         FirstCurrencyAmountTextField.centerYAnchor.constraint(equalTo: FirstCurrencyTextField.centerYAnchor).isActive = true
         FirstCurrencyAmountTextField.leftAnchor.constraint(equalTo: FirstCurrencyTextField.rightAnchor, constant: 20).isActive = true
         FirstCurrencyAmountTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
         FirstCurrencyAmountTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        FirstCurrencyAmountTextField.TextField.keyboardType = .numberPad
-        FirstCurrencyAmountTextField.TextField.addTarget(self, action: #selector(firstTextFieldEditingDidChange), for: .editingChanged)
+        FirstCurrencyAmountTextField.keyboardType = .numberPad
+        FirstCurrencyAmountTextField.addTarget(self, action: #selector(firstTextFieldEditingDidChange), for: .editingChanged)
         
         view.addSubview(SecondCurrencyTextField)
         SecondCurrencyTextField.topAnchor.constraint(equalTo: FirstCurrencyTextField.bottomAnchor, constant: 20).isActive = true
         SecondCurrencyTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
         SecondCurrencyTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
         SecondCurrencyTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        SecondCurrencyTextField.TextField.textAlignment = .center
-        SecondCurrencyTextField.TextField.tintColor = .clear
-        SecondCurrencyTextField.TextField.inputView = SecondCurrencyPickerView
-        
+        SecondCurrencyTextField.inputView = SecondCurrencyPickerView
+        SecondCurrencyTextField.layer.cornerRadius = 5
+
         view.addSubview(SecondCurrencyAmountTextField)
         SecondCurrencyAmountTextField.centerYAnchor.constraint(equalTo: SecondCurrencyTextField.centerYAnchor).isActive = true
         SecondCurrencyAmountTextField.leftAnchor.constraint(equalTo: SecondCurrencyTextField.rightAnchor, constant: 20).isActive = true
         SecondCurrencyAmountTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
         SecondCurrencyAmountTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        SecondCurrencyAmountTextField.TextField.keyboardType = .numberPad
-        SecondCurrencyAmountTextField.TextField.addTarget(self, action: #selector(secondTextFieldEditingDidChange), for: .editingChanged)
+        SecondCurrencyAmountTextField.keyboardType = .numberPad
+        SecondCurrencyAmountTextField.addTarget(self, action: #selector(secondTextFieldEditingDidChange), for: .editingChanged)
         
         Spinner.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(Spinner)
@@ -115,29 +114,30 @@ class CurrencyViewController: UIViewController {
     }
 //MARK:- FUNCTIONS
     @objc func firstTextFieldEditingDidChange(){
-        if SelectedFirstValue != nil && SelectedSecondValue != nil && FirstCurrencyAmountTextField.TextField.text?.isEmpty != true  {
+        if SelectedFirstValue != nil && SelectedSecondValue != nil && FirstCurrencyAmountTextField.text?.isEmpty != true  {
                 let multipleAmount = Double(SelectedFirstValue!) / Double(SelectedSecondValue!)
-                let calculate = Double(FirstCurrencyAmountTextField.TextField.text ?? "0.0")! * Double(multipleAmount)
-                SecondCurrencyAmountTextField.TextField.text = String(calculate.clean)
+                let calculate = Double(FirstCurrencyAmountTextField.text ?? "0.0")! * Double(multipleAmount)
+                SecondCurrencyAmountTextField.text = String(calculate.clean)
             }else {
-                SecondCurrencyAmountTextField.TextField.text = ""
+                SecondCurrencyAmountTextField.text = ""
             }
     }
     @objc func secondTextFieldEditingDidChange(){
-        if SelectedFirstValue != nil && SelectedSecondValue != nil && SecondCurrencyAmountTextField.TextField.text?.isEmpty != true {
+        if SelectedFirstValue != nil && SelectedSecondValue != nil && SecondCurrencyAmountTextField.text?.isEmpty != true {
             let multipleAmount = Double(SelectedSecondValue!) / Double(SelectedFirstValue!)
-            let calculate = Double(SecondCurrencyAmountTextField.TextField.text ?? "0.0")! * Double(multipleAmount)
-            FirstCurrencyAmountTextField.TextField.text = String(calculate.clean)
+            let calculate = Double(SecondCurrencyAmountTextField.text ?? "0.0")! * Double(multipleAmount)
+            FirstCurrencyAmountTextField.text = String(calculate.clean)
         } else {
-            FirstCurrencyAmountTextField.TextField.text = ""
+            FirstCurrencyAmountTextField.text = ""
         }
     }
-    private func backButtonTapped(){
+    @objc private func backButtonTapped(){
         self.dismiss(animated: true, completion: nil)
     }
 }
 
 //MARK:-Extension for picker view
+
 extension CurrencyViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -165,16 +165,16 @@ extension CurrencyViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         switch pickerView.tag {
         case 1:
-            FirstCurrencyTextField.TextField.text = currentCurrencies[row].Name
+            FirstCurrencyTextField.text = currentCurrencies[row].Name
             SelectedFirstValue = currentCurrencies[row].ValueDouble
             firstTextFieldEditingDidChange()
         case 2:
-            SecondCurrencyTextField.TextField.text = currentCurrencies[row].Name
+            SecondCurrencyTextField.text = currentCurrencies[row].Name
             SelectedSecondValue = currentCurrencies[row].ValueDouble
             firstTextFieldEditingDidChange()
         default:
-            FirstCurrencyTextField.TextField.text = "---"
-            SecondCurrencyTextField.TextField.text = "---"
+            FirstCurrencyTextField.text = "---"
+            SecondCurrencyTextField.text = "---"
 
         }
     }

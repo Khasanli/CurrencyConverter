@@ -7,49 +7,43 @@
 
 import UIKit
 
-class GenericTableView<Item, Cell: UITableViewCell>: UITableView, UITableViewDelegate, UITableViewDataSource {
+class GenericCompareTableView<T: GenericCompareCell<U>, U>: UITableView, UITableViewDelegate, UITableViewDataSource {
     var cellHeight: CGFloat!
-    var items : [Item]!
-    var config: (Item, Cell, Int) -> ()
-    var selectedHandler: (Item) -> ()
-    init(items: [Item], cellHeight: CGFloat, config: @escaping (Item, Cell, Int) -> (), selectedHandler: @escaping (Item) -> ()) {
-        self.items = items
-        self.config = config
-        self.selectedHandler = selectedHandler
-        self.cellHeight = cellHeight
+    var items_1 = [U]()
+    var items_2 = [U]()
+    init(items_1: [U], items_2: [U], cellHeight: CGFloat) {
+        self.items_1 = items_1
+        self.items_2 = items_2
         super.init(frame: .zero, style: .plain)
-        
         self.delegate = self
         self.dataSource = self
-        self.register(Cell.self, forCellReuseIdentifier: "Cell")
+        self.register(T.self, forCellReuseIdentifier: "Cell")
+        self.tableFooterView = UIView()
         self.translatesAutoresizingMaskIntoConstraints = false
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cellHeight
+        return cellHeight ?? 40
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return items_1.count
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! Cell
-        config(items[indexPath.row], cell, indexPath.row)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! GenericCompareCell<U>
+        cell.item1 = items_1[indexPath.row]
+        cell.item2 = items_2[indexPath.row]
         return cell
     }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedHandler(items[indexPath.row])
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
-extension GenericTableView {
-    func reload(data items: [Item]) {
-        self.items = items
-        self.reloadData()
+class GenericCompareCell<T>: UITableViewCell {
+    var item1: T!
+    var item2: T!
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
     }
 }

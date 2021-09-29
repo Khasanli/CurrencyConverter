@@ -20,7 +20,7 @@ class Endpoints {
         get {
             let formatter = DateFormatter()
             formatter.dateFormat = "dd.MM.yyyy"
-            return formatter.string(from: Calendar.current.date(byAdding: .day, value: -2, to: Date())!) + ".xml"
+            return formatter.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date())!) + ".xml"
         }
     }
 }

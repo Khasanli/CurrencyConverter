@@ -9,7 +9,7 @@ import Foundation
 import PromiseKit
 
 class CurrencyVM {
-    private let dataManager = DataManager() // Init inside constructor
+    private let dataManager = DataManager()
 
     func getCurrentCurrencies() -> Promise<[Currency]> {
         return Promise{seal in

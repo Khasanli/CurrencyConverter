@@ -13,12 +13,10 @@ class CompareCurrenciesViewController: UIViewController {
     private var currentCurrencies : [Currency] = []
     private var previousCurrencies : [Currency] = []
     
-    private let BackButton = CustomButton(title: nil, image: UIImage(systemName: "chevron.backward"))
-    private let Title = CustomLabel(labelText: "Compare", bgColor: false)
-    private var compareCurrenciesTableView : GenericTableView<Currency, CompareCurrenciesCell>!
+    private let BackButton = UIButton(image: UIImage(systemName: "chevron.backward"), title: nil, tintColor: Colors.tint_color!, backgroundColor: .clear)
+    private let Title = UILabel(text: "Compare", backgroundColor: .clear, textColor: Colors.tint_color!, font: UIFont(name: "Arial", size: 15)!)
+    private var compareCurrenciesTableView : GenericCompareTableView<CompareCurrenciesCell, Currency>!
     private let Spinner = UIActivityIndicatorView(style: .large)
-    private let ErrorText = CustomLabel(labelText: "Error", bgColor: true)
-    private let BGBlur = CustomButton(title: "", image: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,45 +28,35 @@ class CompareCurrenciesViewController: UIViewController {
             currencyVM.getCurrentCurrencies()
         }.done { currencies in
             self.currentCurrencies = currencies
+            print(self.currentCurrencies)
         }.then{
             self.currencyVM.getPreviousCurrencies()
         }.done{ previousCurrencies in
             self.previousCurrencies = previousCurrencies
+            self.compareCurrenciesTableView.reloadData()
+
         }.done{
-            self.compareCurrenciesTableView.reload(data: self.currentCurrencies)
+            self.compareCurrenciesTableView.reloadData()
             self.Spinner.stopAnimating()
         }.catch { error in
            
         }
     }
-    
     private func setView(){
         view.addSubview(BackButton)
         BackButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
         BackButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 5).isActive = true
         BackButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         BackButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        BackButton.action = backButtonTapped
+        BackButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         
         view.addSubview(Title)
         Title.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
         Title.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         Title.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3).isActive = true
         Title.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
-        
-        compareCurrenciesTableView = GenericTableView(items: currentCurrencies, cellHeight: 40, config: { (item, cell, index) in
-            cell.textLabel?.text = item.Name
-            if self.previousCurrencies[index].ValueDouble! > item.ValueDouble! {
-                cell.changeImage.image = UIImage(named: "arrowUp")
-            } else if self.previousCurrencies[index].ValueDouble! < item.ValueDouble!{
-                cell.changeImage.image = UIImage(named: "arrowDown")
-            } else {
-                cell.changeImage.image = UIImage(named: "minus")
-            }
-        }, selectedHandler: { item in
-            print(item.Name)
-        })
+         
+        compareCurrenciesTableView = GenericCompareTableView(items_1: currentCurrencies, items_2: previousCurrencies, cellHeight: 40)
         view.addSubview(compareCurrenciesTableView)
         compareCurrenciesTableView.topAnchor.constraint(equalTo: Title.bottomAnchor, constant: 10).isActive = true
         compareCurrenciesTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -82,7 +70,7 @@ class CompareCurrenciesViewController: UIViewController {
         Spinner.hidesWhenStopped = true
     }
     
-    private func backButtonTapped(){
+    @objc private func backButtonTapped(){
         self.dismiss(animated: true, completion: nil)
     }
 }
